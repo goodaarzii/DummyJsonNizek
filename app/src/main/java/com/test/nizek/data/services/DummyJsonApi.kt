@@ -7,6 +7,9 @@ import retrofit2.http.Query
 interface DummyJsonApi {
     @GET("/products/search")
     suspend fun searchProducts(
-        @Query("q") query: String
+        @Query("q") query: String,
+        @Query("limit") limit: Int,
+        @Query("skip") skip: Int
     ): ProductSearchResponse
 }
+

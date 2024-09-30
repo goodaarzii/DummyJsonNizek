@@ -1,8 +1,10 @@
 package com.test.nizek.data.repository
 
+import androidx.paging.PagingSource
 import com.test.nizek.domin.model.Product
 
 interface ProductRepository {
-    suspend fun searchProducts(query: String): List<Product>
+    fun getSearchResults(query: String): PagingSource<Int, Product>
 }
+
 
