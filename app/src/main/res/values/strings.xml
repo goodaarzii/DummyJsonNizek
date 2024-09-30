@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">nizek</string>
+    <string name="base_url">https://dummyjson.com</string>
 </resources>

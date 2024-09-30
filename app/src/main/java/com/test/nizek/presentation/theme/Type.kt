@@ -1,4 +1,4 @@
-package com.test.nizek.ui.theme
+package com.test.nizek.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -1,4 +1,4 @@
-package com.test.nizek.ui.theme
+package com.test.nizek.presentation.theme
 
 import android.app.Activity
 import android.os.Build
