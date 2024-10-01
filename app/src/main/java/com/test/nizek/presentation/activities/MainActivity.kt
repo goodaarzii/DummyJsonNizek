@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.test.nizek.presentation.fragments.ProductSearchFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +21,7 @@ class MainActivity : FragmentActivity() {
         }
         setContentView(frameLayout)
 
-        // Add the fragment dynamically
+
         if (savedInstanceState == null) {
             addFragment(ProductSearchFragment(),frameLayout)
         }
