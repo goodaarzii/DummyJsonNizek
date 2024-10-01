@@ -65,4 +65,9 @@ class ProductSearchViewModel @Inject constructor(
                 }
         }
     }
+
+    fun processIntent(any: Any) {
+
+
+    }
 }
