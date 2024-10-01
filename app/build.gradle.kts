@@ -40,6 +40,9 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+        dataBinding = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -75,11 +78,11 @@ dependencies {
     implementation(libs.squareup.retrofit2)
     implementation(libs.squareup.retrofit2.converter.gson)
 
-    implementation (libs.androidx.paging.paging.runtime3)
-    implementation (libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.paging.paging.runtime3)
+    implementation(libs.androidx.paging.runtime.ktx)
 
-    implementation (libs.androidx.fragment.ktx)
-    implementation (libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.dagger.hilt.android)
