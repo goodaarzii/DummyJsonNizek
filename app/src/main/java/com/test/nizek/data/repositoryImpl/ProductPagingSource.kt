@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.test.nizek.data.services.DummyJsonApi
 import com.test.nizek.domin.model.Product
+import kotlinx.coroutines.delay
 
 class ProductPagingSource(
     private val api: DummyJsonApi,

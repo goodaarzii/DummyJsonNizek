@@ -2,17 +2,21 @@ package com.test.nizek.presentation.fragments
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +24,7 @@ import com.test.nizek.R
 import com.test.nizek.databinding.FragmentProductSearchBinding
 import com.test.nizek.domin.model.Product
 import com.test.nizek.presentation.adapter.ProductAdapter
+import com.test.nizek.presentation.adapter.ProductLoadStateAdapter
 import com.test.nizek.presentation.state.ProductSearchIntent
 import com.test.nizek.presentation.state.ProductSearchUiState
 import com.test.nizek.presentation.viewModel.ProductSearchViewModel
@@ -36,9 +41,10 @@ class ProductSearchFragment : Fragment() {
     private val viewModel: ProductSearchViewModel by viewModels()
     private lateinit var productAdapter: ProductAdapter
 
-    lateinit var recyclerView: RecyclerView
-    lateinit var progressBar: ProgressBar
-    lateinit var errorTextView: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var errorTextView: TextView
+    private lateinit var searchEditText: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,52 +59,71 @@ class ProductSearchFragment : Fragment() {
         }
 
         initViews(relativeLayout)
-
+        observeState()
 
         return relativeLayout
     }
 
     private fun initViews(parent: RelativeLayout) {
-        // Create the RecyclerView
+
+        // Create Search EditText for entering search queries
+        searchEditText = EditText(requireContext()).apply {
+            id = View.generateViewId()
+            hint = "Type to search..."
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(16, 16, 16, 16)
+            }
+        }
+
         recyclerView = RecyclerView(requireContext()).apply {
             id = View.generateViewId()
             layoutManager = LinearLayoutManager(requireContext())
+            visibility = View.GONE // Initially hidden
         }
 
-        // Create the ProgressBar
         progressBar = ProgressBar(requireContext()).apply {
             id = View.generateViewId()
             isIndeterminate = true
+//            visibility = View.GONE
+            setBackgroundColor(Color.LTGRAY)
         }
 
-        // Create the Error TextView
         errorTextView = TextView(requireContext()).apply {
             id = View.generateViewId()
-            text = "Error Occurred"
-            visibility = View.GONE
+            text = context.getString(R.string.try_to_type_something)
+            visibility = View.VISIBLE // Initially visible
             gravity = Gravity.CENTER
             textSize = 18f
             setTextColor(Color.RED)
         }
 
-        // Add views to the RelativeLayout
+        // Add views to the parent layout
+        parent.addView(
+            searchEditText, RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
         parent.addView(
             recyclerView, RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
-            )
+            ).apply {
+                addRule(RelativeLayout.BELOW, searchEditText.id)
+            }
         )
 
-        // Center ProgressBar in the layout
         val progressBarParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.WRAP_CONTENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             addRule(RelativeLayout.CENTER_IN_PARENT)
         }
-        parent.addView(progressBar, progressBarParams)
 
-        // Center Error TextView in the layout
         val errorTextParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.WRAP_CONTENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
@@ -106,28 +131,29 @@ class ProductSearchFragment : Fragment() {
             addRule(RelativeLayout.CENTER_IN_PARENT)
         }
         parent.addView(errorTextView, errorTextParams)
+        parent.addView(progressBar, progressBarParams)
 
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-        observeState()
-
-        initIntents()
-
-        initView()
-
-
-    }
-
-    private fun initView() {
         productAdapter = ProductAdapter()
+        recyclerView.adapter = productAdapter.withLoadStateFooter(
+            footer = ProductLoadStateAdapter()
+        )
 
-        recyclerView.adapter = productAdapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // Handle search input
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                Log.e("eee", "onTextChanged: $count")
+                if (count > 0)
+                    lifecycleScope.launch {
+                        // This sends the user's search query to the ViewModel
+                        viewModel.processIntent(ProductSearchIntent.SearchQueryChanged(s.toString()))
+                    }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun observeState() {
@@ -138,67 +164,65 @@ class ProductSearchFragment : Fragment() {
         }
     }
 
-    private fun initIntents() {
-        viewModel.processIntent(ProductSearchIntent.SearchQueryChanged(""))
-    }
-
     private fun handleUiState(state: ProductSearchUiState) {
         when (state) {
             is ProductSearchUiState.Loading -> {
-                Log.e("TAG", "handleUiState: loading")
+                Log.e("eee", "handleUiState: load" )
                 showLoading()
             }
 
             is ProductSearchUiState.Success -> {
-                // Hide loading UI
-                Log.e("TAG", "handleUiState: ${state.products}")
-                CoroutineScope(Dispatchers.Main).launch {
-                    showContent(state.products)
-//                    productAdapter.submitData(state.products)
-                }
+                Log.e("eee", "handleUiState: success" )
+                showContent(state.products)
 
             }
 
             is ProductSearchUiState.Error -> {
+                Log.e("eee", "handleUiState: error" )
                 showError(state.message)
             }
 
             is ProductSearchUiState.Idle -> {
-                // Do nothing
+                Log.e("eee", "handleUiState: idle" )
+                showIdleState()
             }
         }
     }
 
-    fun showLoading() {
-        progressBar.visibility = View.VISIBLE
+    private fun showIdleState() {
+        errorTextView.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
         recyclerView.visibility = View.GONE
-        errorTextView.visibility = View.GONE
     }
 
-    // Show error state UI
-    fun showError(message: String) {
+    private fun showLoading() {
+        requireActivity().runOnUiThread {
+            progressBar.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            errorTextView.visibility = View.GONE
+        }
+    }
+
+    private fun showError(message: String) {
         progressBar.visibility = View.GONE
         recyclerView.visibility = View.GONE
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
     }
 
-    // Show content UI state with the products
-    fun showContent(products: PagingData<Product>) {
+    private fun showContent(products: PagingData<Product>) {
         progressBar.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         errorTextView.visibility = View.GONE
 
-
-        CoroutineScope(Dispatchers.Main).launch {
-
+        lifecycleScope.launch {
             productAdapter.submitData(products)
         }
-    }
 
-    companion object {
-
-        @JvmStatic
-        fun newInstance() = ProductSearchFragment()
+        productAdapter.addLoadStateListener { loadState ->
+            if (loadState.refresh is LoadState.NotLoading && productAdapter.itemCount == 0) {
+                showError(getString(R.string.no_products_found))
+            }
+        }
     }
 }
