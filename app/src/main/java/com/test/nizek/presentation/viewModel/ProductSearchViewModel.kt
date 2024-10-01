@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,24 +28,31 @@ class ProductSearchViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ProductSearchUiState>(ProductSearchUiState.Idle)
     val uiState: StateFlow<ProductSearchUiState> = _uiState.asStateFlow()
 
-    val pagingDataFlow = MutableStateFlow<PagingData<Product>>(PagingData.empty())
-
-    private val _intentChannel = Channel<ProductSearchIntent>(Channel.UNLIMITED)
-    val intents: SendChannel<ProductSearchIntent> = _intentChannel
+    // Mutable StateFlow for the search query
+    private val _searchQuery = MutableStateFlow("")
 
     init {
-        handleIntents()
+        observeSearchQuery()
     }
 
-    private fun handleIntents() {
+    private fun observeSearchQuery() {
         viewModelScope.launch {
-            _intentChannel.consumeAsFlow().collect { intent ->
-                when (intent) {
-                    is ProductSearchIntent.SearchQueryChanged -> {
-                        searchProducts(intent.query)
-                    }
+            _searchQuery
+                .debounce(100)  // Debounce for 100 ms
+                .distinctUntilChanged()  // Only process unique queries
+                .collect { query ->
+                    searchProducts(query)
                 }
-            }
+        }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun testQuery(query: String) {
+        viewModelScope.launch {
+            _searchQuery.value = query  // Directly sets the query to test the API call
         }
     }
 
@@ -52,10 +61,8 @@ class ProductSearchViewModel @Inject constructor(
             _uiState.value = ProductSearchUiState.Loading
             searchProductsUseCase(query).flow.cachedIn(viewModelScope)
                 .collect { pagingData ->
-                    pagingDataFlow.value = pagingData
-                    _uiState.value = ProductSearchUiState.Success
+                    _uiState.value = ProductSearchUiState.Success(pagingData)  // Emit products list here
                 }
         }
     }
 }
-
