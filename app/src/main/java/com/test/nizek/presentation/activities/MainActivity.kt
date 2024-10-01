@@ -1,47 +1,39 @@
 package com.test.nizek.presentation.activities
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.test.nizek.presentation.theme.NizekTheme
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import com.test.nizek.presentation.fragments.ProductSearchFragment
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            NizekTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+
+
+        val frameLayout = FrameLayout(this).apply {
+            id = View.generateViewId()
         }
+        setContentView(frameLayout)
+
+        // Add the fragment dynamically
+        if (savedInstanceState == null) {
+            addFragment(ProductSearchFragment(),frameLayout)
+        }
+
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NizekTheme {
-        Greeting("Android")
+    private fun addFragment(fragment: Fragment, frameLayout: FrameLayout) {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+
+        fragmentTransaction.add(frameLayout.id, fragment)
+
+        fragmentTransaction.addToBackStack(null)
+
+        fragmentTransaction.commit()
     }
 }
