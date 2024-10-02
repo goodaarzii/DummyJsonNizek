@@ -20,6 +20,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -122,9 +123,12 @@ class ProductSearchFragment : Fragment() {
         // Other views (RecyclerView, ProgressBar, errorTextView) stay unchanged below:
         recyclerView = RecyclerView(requireContext()).apply {
             id = View.generateViewId()
-            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-            visibility = View.GONE // Initially hidden
+
+
+//            visibility = View.GONE // Initially hidden
         }
+
+
 
         progressBar = ProgressBar(requireContext()).apply {
             id = View.generateViewId()
@@ -169,6 +173,19 @@ class ProductSearchFragment : Fragment() {
         parent.addView(progressBar, progressBarParams)
 
         productAdapter = ProductAdapter()
+
+        val gridLayoutManager = GridLayoutManager(context, 2)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position % 3 == 0) {
+                    2
+                } else {
+                    1
+                }
+            }
+        }
+
+        recyclerView.layoutManager = gridLayoutManager
         recyclerView.adapter = productAdapter.withLoadStateFooter(
             footer = ProductLoadStateAdapter()
         )
@@ -205,7 +222,7 @@ class ProductSearchFragment : Fragment() {
             }
 
             is ProductSearchUiState.Success -> {
-                Log.e("eee", "handleUiState: success" )
+                Log.e("eee", "handleUiState: success ${state.products}" )
                 showContent(state.products)
 
             }

@@ -1,74 +1,80 @@
 package com.test.nizek.presentation.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.test.nizek.R
 import com.test.nizek.databinding.ProductItemBinding
 import com.test.nizek.domin.model.Product
 
 
 class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
-    // ViewHolder for product items
-    inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Bind product information like title, etc.
-        fun bind(product: Product) {
-            // Assuming the itemView is dynamically created with title and image
-            val titleTextView = itemView.findViewById<TextView>(TITLE_VIEW_ID)
-            val productImageView = itemView.findViewById<ImageView>(IMAGE_VIEW_ID)
+    class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
+        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-            titleTextView.text = product.title
-            // Load the image dynamically with your preferred image loading library (e.g., Glide, Coil)
+        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem == newItem
         }
     }
 
-    companion object {
-        val TITLE_VIEW_ID: Int = View.generateViewId()
-        val IMAGE_VIEW_ID: Int = View.generateViewId()
-    }
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Create the item layout dynamically
-        val relativeLayout = RelativeLayout(parent.context).apply {
+        // Dynamically create ConstraintLayout
+        val constraintLayout = ConstraintLayout(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            setPadding(16, 16, 16, 16)
         }
 
-        // Add a TextView for the product title
-        val titleTextView = TextView(parent.context).apply {
-            id = TITLE_VIEW_ID
-            layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                addRule(RelativeLayout.ALIGN_PARENT_START)
-                marginStart = 16
-            }
-        }
-        relativeLayout.addView(titleTextView)
-
-        // Add an ImageView for the product image
+        // Create ImageView programmatically
         val productImageView = ImageView(parent.context).apply {
-            id = IMAGE_VIEW_ID
-            layoutParams = RelativeLayout.LayoutParams(
-                200, 200 // Image size
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                0 // Height set to 0, but will be constrained to maintain aspect ratio
             ).apply {
-                addRule(RelativeLayout.ALIGN_PARENT_END)
-                marginEnd = 16
+                dimensionRatio = "H,1:1" // Maintain 1:1 aspect ratio (height based on width)
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
             }
+            scaleType = ImageView.ScaleType.CENTER_CROP
         }
-        relativeLayout.addView(productImageView)
 
-        return ProductViewHolder(relativeLayout)
+        // Create TextView programmatically
+        val titleTextView = TextView(parent.context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                ConstraintLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topToBottom = productImageView.id
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+            text = "Title"
+            setTextColor(Color.WHITE)
+        }
+
+        // Add views to ConstraintLayout
+        constraintLayout.addView(productImageView)
+        constraintLayout.addView(titleTextView)
+
+        // Return ProductViewHolder
+        return ProductViewHolder(constraintLayout, titleTextView, productImageView)
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
@@ -76,17 +82,23 @@ class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHold
         holder.bind(product)
     }
 
-
-    class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
-        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
-            // Assuming product ID is unique for each product
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
-            // Compare content for updates
-            return oldItem == newItem
+    inner class ProductViewHolder(
+        itemView: View,
+        private val titleTextView: TextView,
+        private val productImageView: ImageView
+    ) : RecyclerView.ViewHolder(itemView) {
+        fun bind(product: Product) {
+            titleTextView.text = product.title
+            val urlImage = "https://dummyjson.com/image/400x300/008080/ffffff?text=${product.title}"
+            productImageView.load(urlImage) {
+                crossfade(true)
+                placeholder(R.drawable.ic_launcher_background)
+            }
         }
     }
 }
+
+
+
+
 
