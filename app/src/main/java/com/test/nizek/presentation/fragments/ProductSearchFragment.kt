@@ -1,5 +1,6 @@
 package com.test.nizek.presentation.fragments
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -14,12 +15,14 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.test.nizek.R
 import com.test.nizek.databinding.FragmentProductSearchBinding
 import com.test.nizek.domin.model.Product
@@ -27,6 +30,7 @@ import com.test.nizek.presentation.adapter.ProductAdapter
 import com.test.nizek.presentation.adapter.ProductLoadStateAdapter
 import com.test.nizek.presentation.state.ProductSearchIntent
 import com.test.nizek.presentation.state.ProductSearchUiState
+import com.test.nizek.presentation.theme.Purple40
 import com.test.nizek.presentation.viewModel.ProductSearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -55,7 +59,9 @@ class ProductSearchFragment : Fragment() {
             layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
-            )
+            ).apply {
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.orange))
+            }
         }
 
         initViews(relativeLayout)
@@ -65,29 +71,65 @@ class ProductSearchFragment : Fragment() {
     }
 
     private fun initViews(parent: RelativeLayout) {
-
-        // Create Search EditText for entering search queries
-        searchEditText = EditText(requireContext()).apply {
+        val paddingInPx = dpToPx(8, parent.context)
+        // Create a RelativeLayout that will act as the parent for the EditText
+        val searchEditTextParent = RelativeLayout(requireContext()).apply {
             id = View.generateViewId()
-            hint = "Type to search..."
+            setBackgroundColor(ContextCompat.getColor(parent.context,R.color.purple_700)) // Set background color of the parent (blue)
             layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                setMargins(16, 16, 16, 16)
+                setPadding(paddingInPx, paddingInPx, paddingInPx, paddingInPx) // Add margins if needed
+
             }
         }
 
+        // Create Search EditText for entering search queries inside the parent
+        searchEditText = EditText(requireContext()).apply {
+            id = View.generateViewId()
+            hint = "Type to search..."
+            setHintTextColor(ContextCompat.getColor(parent.context,R.color.black))
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+
+                setPadding(paddingInPx, paddingInPx, paddingInPx, paddingInPx)
+                setMargins(paddingInPx, paddingInPx, paddingInPx, paddingInPx)
+            }
+            textSize = 18F
+            setTextColor(ContextCompat.getColor(parent.context,R.color.black))
+
+        }
+
+        // Add the EditText inside the parent RelativeLayout
+        searchEditTextParent.addView(
+            searchEditText, RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // Add the parent layout (with the EditText inside it) to the main parent layout
+        parent.addView(
+            searchEditTextParent, RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // Other views (RecyclerView, ProgressBar, errorTextView) stay unchanged below:
         recyclerView = RecyclerView(requireContext()).apply {
             id = View.generateViewId()
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             visibility = View.GONE // Initially hidden
         }
 
         progressBar = ProgressBar(requireContext()).apply {
             id = View.generateViewId()
             isIndeterminate = true
-//            visibility = View.GONE
+            visibility = View.GONE
             setBackgroundColor(Color.LTGRAY)
         }
 
@@ -100,20 +142,12 @@ class ProductSearchFragment : Fragment() {
             setTextColor(Color.RED)
         }
 
-        // Add views to the parent layout
-        parent.addView(
-            searchEditText, RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            )
-        )
-
         parent.addView(
             recyclerView, RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
             ).apply {
-                addRule(RelativeLayout.BELOW, searchEditText.id)
+                addRule(RelativeLayout.BELOW, searchEditTextParent.id)
             }
         )
 
@@ -130,6 +164,7 @@ class ProductSearchFragment : Fragment() {
         ).apply {
             addRule(RelativeLayout.CENTER_IN_PARENT)
         }
+
         parent.addView(errorTextView, errorTextParams)
         parent.addView(progressBar, progressBarParams)
 
@@ -143,11 +178,8 @@ class ProductSearchFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                Log.e("eee", "onTextChanged: $count")
                 if (count > 0)
                     lifecycleScope.launch {
-                        // This sends the user's search query to the ViewModel
                         viewModel.processIntent(ProductSearchIntent.SearchQueryChanged(s.toString()))
                     }
             }
@@ -155,6 +187,7 @@ class ProductSearchFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
+
 
     private fun observeState() {
         lifecycleScope.launchWhenStarted {
@@ -224,5 +257,8 @@ class ProductSearchFragment : Fragment() {
                 showError(getString(R.string.no_products_found))
             }
         }
+    }
+    fun dpToPx(dp: Int, context: Context): Int {
+        return (dp * context.resources.displayMetrics.density).toInt()
     }
 }
