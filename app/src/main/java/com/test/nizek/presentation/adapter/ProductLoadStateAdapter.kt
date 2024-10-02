@@ -12,6 +12,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.test.nizek.R
+import com.test.nizek.presentation.views.*
 
 class ProductLoadStateAdapter : LoadStateAdapter<ProductLoadStateAdapter.LoadStateViewHolder>() {
 
@@ -63,45 +64,9 @@ class ProductLoadStateAdapter : LoadStateAdapter<ProductLoadStateAdapter.LoadSta
         holder.bind(loadState)
     }
 
-    private fun setupProgressBarView(context: Context): ProgressBar {
-        return ProgressBar(context).apply {
-            id = PROGRESS_BAR_ID
-            layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                addRule(RelativeLayout.CENTER_IN_PARENT)
-                setMargins(ZERO, PADDING_ITEM, ZERO, PADDING_ITEM)
-            }
-            isIndeterminate = true
-        }
-    }
 
-    private fun setupTextView(context: Context): TextView {
-        return TextView(context).apply {
-            id = TEXT_VIEW_ID
-            layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                addRule(RelativeLayout.ALIGN_PARENT_START)
-                setMargins(ZERO, PADDING_ITEM, ZERO, ZERO)
-            }
-            text = context.getString(R.string.please_wait)
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
 
-        }
-    }
 
-    private fun setUpParent(context: Context): RelativeLayout {
-        return RelativeLayout(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setBackgroundColor(Color.LTGRAY)
-        }
-    }
 
 
     companion object {

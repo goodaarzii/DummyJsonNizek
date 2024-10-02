@@ -9,6 +9,7 @@ import com.test.nizek.domin.usecase.SearchProductsUseCase
 import com.test.nizek.presentation.state.ProductSearchIntent
 import com.test.nizek.presentation.state.ProductSearchUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class ProductSearchViewModel @Inject constructor(
     private val searchProductsUseCase: SearchProductsUseCase
@@ -69,7 +71,7 @@ class ProductSearchViewModel @Inject constructor(
                 .distinctUntilChanged() // Only process unique queries
                 .collect { query ->
                     if (query.isNotBlank()) {
-                        searchProducts(query)  // Process valid queries
+                        searchProducts(query)
                     }
                 }
         }

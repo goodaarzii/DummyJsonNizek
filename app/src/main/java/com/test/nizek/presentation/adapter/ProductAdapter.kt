@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.test.nizek.R
 import com.test.nizek.domin.model.Product
+import com.test.nizek.presentation.views.*
 
 
 class ProductAdapter :
@@ -37,56 +38,13 @@ class ProductAdapter :
 
         val titleTextView = getTitleTextview(parent.context,productImageView)
 
-
         constraintLayout.addView(productImageView)
         constraintLayout.addView(titleTextView)
-
 
         return ProductViewHolder(constraintLayout, titleTextView, productImageView)
     }
 
-    private fun getTitleTextview(context: Context?, productImageView: ImageView): TextView {
-        return TextView(context).apply {
-            id = View.generateViewId()
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                ConstraintLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topToBottom = productImageView.id
-                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-                setMargins(PADDING_ITEM)
-            }
 
-            setTextColor(Color.WHITE)
-        }
-    }
-
-    private fun getImageView(context: Context): ImageView {
-        return ImageView(context).apply {
-            id = View.generateViewId()
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                ZERO
-            ).apply {
-                dimensionRatio = IMAGE_RATIO
-                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-            }
-            scaleType = ImageView.ScaleType.CENTER_CROP
-        }
-    }
-
-    private fun getConstraintParent(context: Context): ConstraintLayout {
-        return ConstraintLayout(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(PADDING_ITEM, PADDING_ITEM, PADDING_ITEM, PADDING_ITEM)
-        }
-    }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = getItem(position) ?: return

@@ -4,13 +4,24 @@ import android.content.Context
 import android.graphics.Color
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
 import com.test.nizek.R
+import com.test.nizek.presentation.adapter.ProductAdapter.Companion.IMAGE_RATIO
+import com.test.nizek.presentation.adapter.ProductAdapter.Companion.PADDING_ITEM
+import com.test.nizek.presentation.adapter.ProductAdapter.Companion.ZERO
+import com.test.nizek.presentation.adapter.ProductLoadStateAdapter
+import com.test.nizek.presentation.adapter.ProductLoadStateAdapter.Companion
+import com.test.nizek.presentation.adapter.ProductLoadStateAdapter.Companion.PROGRESS_BAR_ID
+import com.test.nizek.presentation.adapter.ProductLoadStateAdapter.Companion.TEXT_VIEW_ID
 
 fun getParentRelativeView(context: Context): RelativeLayout {
     return RelativeLayout(context).apply {
@@ -26,7 +37,7 @@ fun getParentRelativeView(context: Context): RelativeLayout {
 fun getSearchEditTextParent(context: Context,paddingInPx:Int): RelativeLayout {
     return RelativeLayout(context).apply {
         id = View.generateViewId()
-        setBackgroundColor(ContextCompat.getColor(context,R.color.purple_700))
+        setBackgroundColor(ContextCompat.getColor(context,R.color.purple_light))
         layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
@@ -117,6 +128,99 @@ fun getErrorTextParams(): RelativeLayout.LayoutParams {
         RelativeLayout.LayoutParams.WRAP_CONTENT
     ).apply {
         addRule(RelativeLayout.CENTER_IN_PARENT)
+    }
+}
+
+fun getConstraintParent(context: Context): ConstraintLayout {
+    return ConstraintLayout(context).apply {
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        setPadding(PADDING_ITEM, PADDING_ITEM, PADDING_ITEM, PADDING_ITEM)
+    }
+}
+
+fun getTitleTextview(context: Context?, productImageView: ImageView): TextView {
+    return TextView(context).apply {
+        id = View.generateViewId()
+        layoutParams = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topToBottom = productImageView.id
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            setMargins(PADDING_ITEM)
+        }
+
+        setTextColor(Color.WHITE)
+    }
+}
+
+fun getImageView(context: Context): ImageView {
+    return ImageView(context).apply {
+        id = View.generateViewId()
+        layoutParams = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ZERO
+        ).apply {
+            dimensionRatio = IMAGE_RATIO
+            topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+        }
+        scaleType = ImageView.ScaleType.CENTER_CROP
+    }
+}
+
+fun setupProgressBarView(context: Context): ProgressBar {
+    return ProgressBar(context).apply {
+        id = PROGRESS_BAR_ID
+        layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            addRule(RelativeLayout.CENTER_IN_PARENT)
+            setMargins(
+                ProductLoadStateAdapter.ZERO,
+                ProductLoadStateAdapter.PADDING_ITEM,
+                ProductLoadStateAdapter.ZERO,
+                ProductLoadStateAdapter.PADDING_ITEM
+            )
+        }
+        isIndeterminate = true
+    }
+}
+
+fun setupTextView(context: Context): TextView {
+    return TextView(context).apply {
+        id = TEXT_VIEW_ID
+        layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            addRule(RelativeLayout.ALIGN_PARENT_START)
+            setMargins(
+                ProductLoadStateAdapter.ZERO,
+                ProductLoadStateAdapter.PADDING_ITEM,
+                ProductLoadStateAdapter.ZERO,
+                ProductLoadStateAdapter.ZERO
+            )
+        }
+        text = context.getString(R.string.please_wait)
+        textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+    }
+}
+
+ fun setUpParent(context: Context): RelativeLayout {
+    return RelativeLayout(context).apply {
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        setBackgroundColor(Color.LTGRAY)
     }
 }
 
