@@ -13,7 +13,7 @@ class ProductPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Product> {
         return try {
-            val currentPage = params.key ?: 0 // Start with skip=0
+            val currentPage = params.key ?: 0
             val response = api.searchProducts(query, limit = params.loadSize, skip = currentPage)
 
             LoadResult.Page(

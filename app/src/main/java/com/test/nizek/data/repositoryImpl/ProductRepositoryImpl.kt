@@ -1,7 +1,7 @@
 package com.test.nizek.data.repositoryImpl
 
 import androidx.paging.PagingSource
-import com.test.nizek.data.repository.ProductRepository
+import com.test.nizek.domin.repository.ProductRepository
 import com.test.nizek.data.services.DummyJsonApi
 import com.test.nizek.domin.model.Product
 import javax.inject.Inject

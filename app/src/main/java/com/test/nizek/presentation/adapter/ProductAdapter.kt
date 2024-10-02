@@ -1,23 +1,23 @@
 package com.test.nizek.presentation.adapter
 
+import android.content.Context
 import android.graphics.Color
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.setMargins
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.test.nizek.R
-import com.test.nizek.databinding.ProductItemBinding
 import com.test.nizek.domin.model.Product
 
 
-class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
+class ProductAdapter :
+    PagingDataAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
     class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
         override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
@@ -30,32 +30,23 @@ class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHold
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Dynamically create ConstraintLayout
-        val constraintLayout = ConstraintLayout(parent.context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(16, 16, 16, 16)
-        }
 
-        // Create ImageView programmatically
-        val productImageView = ImageView(parent.context).apply {
-            id = View.generateViewId()
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                0 // Height set to 0, but will be constrained to maintain aspect ratio
-            ).apply {
-                dimensionRatio = "H,1:1" // Maintain 1:1 aspect ratio (height based on width)
-                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-            }
-            scaleType = ImageView.ScaleType.CENTER_CROP
-        }
+        val constraintLayout = getConstraintParent(parent.context)
 
-        // Create TextView programmatically
-        val titleTextView = TextView(parent.context).apply {
+        val productImageView = getImageView(parent.context)
+
+        val titleTextView = getTitleTextview(parent.context,productImageView)
+
+
+        constraintLayout.addView(productImageView)
+        constraintLayout.addView(titleTextView)
+
+
+        return ProductViewHolder(constraintLayout, titleTextView, productImageView)
+    }
+
+    private fun getTitleTextview(context: Context?, productImageView: ImageView): TextView {
+        return TextView(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
                 ConstraintLayout.LayoutParams.MATCH_PARENT,
@@ -64,17 +55,37 @@ class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHold
                 topToBottom = productImageView.id
                 startToStart = ConstraintLayout.LayoutParams.PARENT_ID
                 endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                setMargins(PADDING_ITEM)
             }
-            text = "Title"
+
             setTextColor(Color.WHITE)
         }
+    }
 
-        // Add views to ConstraintLayout
-        constraintLayout.addView(productImageView)
-        constraintLayout.addView(titleTextView)
+    private fun getImageView(context: Context): ImageView {
+        return ImageView(context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                ZERO
+            ).apply {
+                dimensionRatio = IMAGE_RATIO
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+    }
 
-        // Return ProductViewHolder
-        return ProductViewHolder(constraintLayout, titleTextView, productImageView)
+    private fun getConstraintParent(context: Context): ConstraintLayout {
+        return ConstraintLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(PADDING_ITEM, PADDING_ITEM, PADDING_ITEM, PADDING_ITEM)
+        }
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
@@ -89,12 +100,18 @@ class ProductAdapter : PagingDataAdapter<Product, ProductAdapter.ProductViewHold
     ) : RecyclerView.ViewHolder(itemView) {
         fun bind(product: Product) {
             titleTextView.text = product.title
-            val urlImage = "https://dummyjson.com/image/400x300/008080/ffffff?text=${product.title}"
+            val urlImage = product.getImageUrl()
             productImageView.load(urlImage) {
                 crossfade(true)
                 placeholder(R.drawable.ic_launcher_background)
             }
         }
+    }
+
+    companion object {
+        const val PADDING_ITEM = 16
+        const val IMAGE_RATIO = "H,1:1"
+        const val ZERO = 0
     }
 }
 

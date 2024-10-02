@@ -71,7 +71,7 @@ class ProductLoadStateAdapter : LoadStateAdapter<ProductLoadStateAdapter.LoadSta
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 addRule(RelativeLayout.CENTER_IN_PARENT)
-                setMargins(0, 16, 0, 16)
+                setMargins(ZERO, PADDING_ITEM, ZERO, PADDING_ITEM)
             }
             isIndeterminate = true
         }
@@ -85,7 +85,7 @@ class ProductLoadStateAdapter : LoadStateAdapter<ProductLoadStateAdapter.LoadSta
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 addRule(RelativeLayout.ALIGN_PARENT_START)
-                setMargins(0, 16, 0, 0)
+                setMargins(ZERO, PADDING_ITEM, ZERO, ZERO)
             }
             text = context.getString(R.string.please_wait)
             textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -107,5 +107,8 @@ class ProductLoadStateAdapter : LoadStateAdapter<ProductLoadStateAdapter.LoadSta
     companion object {
         const val PROGRESS_BAR_ID = 153135
         const val TEXT_VIEW_ID = 153136
+        const val PADDING_ITEM = 16
+        const val ZERO = 0
+
     }
 }

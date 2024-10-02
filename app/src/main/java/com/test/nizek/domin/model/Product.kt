@@ -10,4 +10,6 @@ data class Product(
     val price: Double? = null,
     @SerializedName("title")
     val title: String? = null
-)
+) {
+    fun getImageUrl() = "https://dummyjson.com/image/400x300/008080/ffffff?text=${title}"
+}

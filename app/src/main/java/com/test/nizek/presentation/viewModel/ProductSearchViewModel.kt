@@ -32,7 +32,6 @@ class ProductSearchViewModel @Inject constructor(
 
 
     private val _intentFlow = MutableSharedFlow<ProductSearchIntent>()
-    val intentFlow: SharedFlow<ProductSearchIntent> = _intentFlow.asSharedFlow()
 
 
     private val _uiState = MutableStateFlow<ProductSearchUiState>(ProductSearchUiState.Idle)
@@ -43,10 +42,10 @@ class ProductSearchViewModel @Inject constructor(
 
     init {
         observeSearchQuery()
-        handleIntents()  // Collect and process intents here
+        handleIntents()
     }
 
-    // Observe intents from SharedFlow
+
     private fun handleIntents() {
         viewModelScope.launch {
             _intentFlow.collect { intent ->

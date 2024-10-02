@@ -1,4 +1,4 @@
-package com.test.nizek.data.repository
+package com.test.nizek.domin.repository
 
 import androidx.paging.PagingSource
 import com.test.nizek.domin.model.Product

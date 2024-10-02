@@ -1,6 +1,6 @@
 package com.test.nizek.di
 
-import com.test.nizek.data.repository.ProductRepository
+import com.test.nizek.domin.repository.ProductRepository
 import com.test.nizek.data.repositoryImpl.ProductRepositoryImpl
 import com.test.nizek.data.services.DummyJsonApi
 import dagger.Module
