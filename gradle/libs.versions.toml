@@ -14,6 +14,9 @@ lifecycleVersion = "2.8.5"  # ViewModel & LiveData version
 pagingRuntimeKtx = "3.3.2"
 retrofit = "2.9.0"          # Retrofit version
 hiltVersion = "2.48"         # Hilt version
+coil = "2.4.0"               # Coil version
+constraintLayout = "2.2.0-beta01"   # ConstraintLayout version
+
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityCompose" }
@@ -39,9 +42,11 @@ androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifec
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
 squareup-retrofit2 = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
-
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
+
+coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }  # Coil dependency
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }  # ConstraintLayout dependency
 
 
 [plugins]

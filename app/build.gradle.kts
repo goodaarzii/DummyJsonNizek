@@ -85,8 +85,8 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation ("io.coil-kt:coil-compose:2.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0-beta01")
+    implementation(libs.coil)
+    implementation(libs.androidx.constraintlayout)
 
     implementation(libs.dagger.hilt.android)
     kapt(libs.dagger.hilt.compiler)
